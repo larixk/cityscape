@@ -47,7 +47,7 @@ const scale = (from, factor) => [from[0] * factor, from[1] * factor];
 const drawPanel = (vertices, color, x, y, size, opacity = -1) => {
   ctx.fillStyle = color
     .mix("#b6cee2", (1 - y / window.innerHeight) ** 3 * 0.8)
-    .alpha(opacity === -1 ? (random() ** 2 + 0.1) * 0.8 : opacity);
+    .alpha(opacity === -1 ? (random() ** 2 + 0.4) * 0.8 : opacity);
   drawPolygon(
     vertices.map((from) =>
       translate(scale(from, (y / window.innerHeight) * 2 * size), [
@@ -124,15 +124,15 @@ const drawBuilding = ({ x, y }) => {
   const size = random(0.8, 1.2);
   drawBlock({ x, y, size, height, rotation });
 
-  if (chance(0.25)) {
-    drawBlock({
-      x,
-      y: y - perspectiveScale * (2 * height - random(20)),
-      size: size / 2,
-      height: 10,
-      rotation,
-    });
-  }
+  //   if (chance(0.25)) {
+  //     drawBlock({
+  //       x,
+  //       y: y - perspectiveScale * (2 * height - random(20)),
+  //       size: size / 2,
+  //       height: 10,
+  //       rotation,
+  //     });
+  //   }
 };
 
 const addNoise = () => {
