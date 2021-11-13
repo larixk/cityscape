@@ -154,11 +154,12 @@ const tick = () => {
     //   addNoise();
     // }
     stopLoop();
-    setTimeout(() => {
-      destroy();
-      init();
-    }, 6000);
   }
+};
+
+const onClick = () => {
+  destroy();
+  init();
 };
 
 const init = () => {
@@ -174,6 +175,8 @@ const init = () => {
 
   y = HORIZON;
 
+  document.body.addEventListener("click", onClick);
+
   stopLoop = startRafLoop(tick);
 };
 
@@ -181,6 +184,7 @@ init();
 
 const destroy = () => {
   document.body.removeChild(canvas);
+  document.body.removeEventListener("click", onClick);
   stopLoop();
 };
 
