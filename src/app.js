@@ -9,7 +9,7 @@ const startRafLoop = (runEveryFrame) => {
   let rafId;
   const performRafTick = () => {
     rafId = requestAnimationFrame(performRafTick);
-    for (var i = 0; i < 1000; i++) {
+    for (var i = 0; i < 100; i++) {
       runEveryFrame();
     }
   };
@@ -141,7 +141,7 @@ const addNoise = () => {
   ctx.fillRect(random(window.innerWidth), random(window.innerHeight), 1, 1);
 };
 
-let y = HORIZON;
+let y;
 const tick = () => {
   y += (y / window.innerHeight) ** 2 / (window.innerWidth / 200);
   drawBuilding({
@@ -154,6 +154,10 @@ const tick = () => {
     //   addNoise();
     // }
     stopLoop();
+    setTimeout(() => {
+      destroy();
+      init();
+    }, 6000);
   }
 };
 
@@ -167,6 +171,8 @@ const init = () => {
   document.body.style.margin = 0;
 
   simplex = new SimplexNoise();
+
+  y = HORIZON;
 
   stopLoop = startRafLoop(tick);
 };
