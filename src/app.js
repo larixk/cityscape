@@ -3,7 +3,7 @@ import SimplexNoise from "simplex-noise";
 
 let canvas, ctx, stopLoop, simplex;
 
-const HORIZON = 50;
+const HORIZON = window.innerHeight / 8;
 
 const startRafLoop = (runEveryFrame) => {
   let rafId;
