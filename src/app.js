@@ -159,8 +159,8 @@ const onClick = () => {
 
 const init = () => {
   canvas = document.createElement("canvas");
-  canvas.width = window.innerWidth * window.devicePixelRatio;
-  canvas.height = window.innerHeight * window.devicePixelRatio;
+  canvas.width = window.innerWidth * 1;
+  canvas.height = window.innerHeight * 1;
   canvas.style.width = `${window.innerWidth}px`;
   canvas.style.height = `${window.innerHeight}px`;
   canvas.style.display = "block";
