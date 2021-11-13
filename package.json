@@ -10,6 +10,7 @@
     "start": "yarn parcel src/index.html"
   },
   "dependencies": {
-    "chroma-js": "^2.1.2"
+    "chroma-js": "^2.1.2",
+    "simplex-noise": "^3.0.0"
   }
 }

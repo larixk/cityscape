@@ -1,6 +1,7 @@
 import chroma from "chroma-js";
+import SimplexNoise from "simplex-noise";
 
-let canvas, ctx, stopLoop;
+let canvas, ctx, stopLoop, simplex;
 
 const HORIZON = 50;
 
@@ -43,13 +44,13 @@ const drawPolygon = (vertices) => {
 const translate = (from, to) => [from[0] + to[0], from[1] + to[1]];
 const scale = (from, factor) => [from[0] * factor, from[1] * factor];
 
-const drawPanel = (vertices, color, x, y, size) => {
+const drawPanel = (vertices, color, x, y, size, opacity = -1) => {
   ctx.fillStyle = color
-    .mix("#b6cee2", (1 - y / window.innerHeight) * 0.5)
-    .alpha((random() ** 2 + 0.4) * 0.8);
+    .mix("#b6cee2", (1 - y / window.innerHeight) ** 3 * 0.8)
+    .alpha(opacity === -1 ? (random() ** 2 + 0.1) * 0.8 : opacity);
   drawPolygon(
     vertices.map((from) =>
-      translate(scale(from, (y / window.innerHeight) * 4 * size), [
+      translate(scale(from, (y / window.innerHeight) * 2 * size), [
         x,
         y - HORIZON,
       ])
@@ -80,25 +81,54 @@ const drawBlock = ({ x, y, rotation, height, size }) => {
   ];
   drawPanel(left, baseColor.brighten(1), x, y, size);
 
+  if (chance(0.5)) {
+    const balcony = [
+      [-10, 0 - 4],
+      [0 + rotation, 5 - 4],
+      [0 + rotation, 0],
+      [-10, -5],
+    ];
+    for (var i = 0; i < height * 2; i += 4) {
+      drawPanel(
+        balcony,
+        baseColor.darken(2),
+        x,
+        y - i * (y / window.innerHeight),
+        size,
+        0.1
+      );
+    }
+  }
+
   const right = [
     [0 + rotation, 5 - height],
     [10, 0 - height],
     [10, -5],
     [0 + rotation, 0],
   ];
-  drawPanel(right, baseColor.darken(3), x, y, size);
+  drawPanel(right, baseColor.darken(4), x, y, size, 1);
 };
 const drawBuilding = ({ x, y }) => {
   const perspectiveScale = y / window.innerHeight;
-  const height = chance(0.1) ? random(60, 80) : random(40, 45);
+  const noise =
+    (simplex.noise2D(
+      (x - window.innerWidth / 2) / 300 / perspectiveScale,
+      Math.sqrt(y) / 3
+    ) +
+      1) *
+    0.5;
+  const height = noise > 0.7 ? random(60, 80) : random(40, 45);
+  //   console.log(noise);
+  //   const height = noise ** 2 * 80 + 40;
   const rotation = chance(0.4) ? random(-4, 4) : 0;
-  drawBlock({ x, y, size: 1, height, rotation });
+  const size = random(0.8, 1.2);
+  drawBlock({ x, y, size, height, rotation });
 
   if (chance(0.25)) {
     drawBlock({
       x,
-      y: y - perspectiveScale * (4 * height - random(20)),
-      size: 0.5,
+      y: y - perspectiveScale * (2 * height - random(20)),
+      size: size / 2,
       height: 10,
       rotation,
     });
@@ -113,7 +143,7 @@ const addNoise = () => {
 
 let y = HORIZON;
 const tick = () => {
-  y += (y / window.innerHeight) ** 2 / (window.innerWidth / 2000);
+  y += (y / window.innerHeight) ** 2 / (window.innerWidth / 200);
   drawBuilding({
     x: random(window.innerWidth),
     y,
@@ -135,6 +165,8 @@ const init = () => {
 
   document.body.appendChild(canvas);
   document.body.style.margin = 0;
+
+  simplex = new SimplexNoise();
 
   stopLoop = startRafLoop(tick);
 };
