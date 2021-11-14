@@ -1,5 +1,6 @@
 import chroma from "chroma-js";
 import SimplexNoise from "simplex-noise";
+import maskJpg from "./mask.png";
 
 let canvas, ctx, stopLoop, simplex, horizon;
 
@@ -105,6 +106,10 @@ const drawBlock = ({ x, y, rotation, height, size }) => {
 };
 const drawBuilding = ({ x, y }) => {
   const perspectiveScale = y / canvas.height;
+  console.log(getMaskBrightnessAt(x, y));
+  if (simplex.noise2D(x / 100, y / 1000) < -0.5) {
+    return;
+  }
   const noise =
     (simplex.noise2D(
       (x - canvas.width / 2) / 300 / perspectiveScale,
@@ -112,7 +117,8 @@ const drawBuilding = ({ x, y }) => {
     ) +
       1) *
     0.5;
-  const height = noise > 0.7 ? random(60, 80) : random(40, 45);
+
+  const height = noise > 0.8 ? random(60, 90) : random(30, 45);
   //   console.log(noise);
   //   const height = noise ** 2 * 80 + 40;
   const rotation = chance(1) ? random(-4, 4) : 0;
@@ -174,9 +180,41 @@ const init = () => {
   horizon = canvas.height / 8;
   y = horizon;
 
-  document.body.addEventListener("click", onClick);
+  loadMask((mask) => {
+    document.body.addEventListener("click", onClick);
 
-  stopLoop = startRafLoop(tick);
+    stopLoop = startRafLoop(tick);
+  });
+};
+
+const limit = (x, min, max) => Math.floor(Math.max(min, Math.min(max, x)));
+
+let maskCtx;
+const getMaskBrightnessAt = (x, y) => {
+  return (
+    maskCtx
+      .getImageData(
+        limit(x, 0, canvas.width - 1),
+        limit(y - horizon, 0, canvas.height - 1),
+        1,
+        1
+      )
+      // .getImageData(Math.round(x), Math.round(y - horizon), 1, 1)
+      .data.reduce((total, current) => total + current / 4, 0)
+  );
+};
+
+const loadMask = (callback) => {
+  const img = new Image();
+  img.src = maskJpg;
+  img.onload = () => {
+    const maskCanvas = document.createElement("canvas");
+    maskCanvas.width = canvas.width;
+    maskCanvas.height = canvas.height;
+    maskCtx = maskCanvas.getContext("2d");
+    maskCtx.drawImage(img, 0, 0, maskCanvas.width, maskCanvas.height);
+    callback(maskCtx);
+  };
 };
 
 init();
